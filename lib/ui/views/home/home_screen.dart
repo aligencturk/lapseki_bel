@@ -150,18 +150,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       ];
 
                       return SizedBox(
-                        height: 190,
+                        height: 250,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: mock.length,
                           itemBuilder: (context, index) {
                             final a = mock[index];
-                            return SizedBox(
-                              width: 280,
-                              child: AnnouncementCard(
-                                title: a['title'] as String,
-                                date: a['date'] as String,
-                                imageUrl: a['imageUrl'] as String,
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: SizedBox(
+                                width: 320,
+                                child: AnnouncementCard(
+                                  title: a['title'] as String,
+                                  date: a['date'] as String,
+                                  imageUrl: a['imageUrl'] as String,
+                                ),
                               ),
                             );
                           },

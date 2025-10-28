@@ -26,7 +26,7 @@ class AnnouncementCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -34,25 +34,25 @@ class AnnouncementCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: AspectRatio(
-                    aspectRatio: 16 / 9,
+                    aspectRatio: 2.0,
                     child: imageAsset != null
                         ? Image.asset(imageAsset!, fit: BoxFit.cover)
                         : Image.network(imageUrl!, fit: BoxFit.cover),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
               ],
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   const Icon(
