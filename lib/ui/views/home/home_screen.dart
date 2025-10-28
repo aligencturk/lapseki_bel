@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_images.dart';
 import '../../../viewmodels/home_viewmodel.dart';
+import '../../../viewmodels/weather_viewmodel.dart';
 import '../../widgets/announcement_card.dart';
 import '../../widgets/language_switcher.dart';
 import '../../widgets/header_slider.dart';
@@ -17,6 +18,9 @@ import '../projeler/projeler_screen.dart';
 import '../kentrehberi/kent_rehberi_screen.dart';
 import '../basin/basin_screen.dart';
 import '../iletisim/iletisim_screen.dart';
+import '../vefat/vefat_screen.dart';
+import '../eczane/nobetci_eczane_screen.dart';
+import '../hava/hava_durumu_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeViewModel>().loadAnnouncements();
+      context.read<WeatherViewModel>().load();
     });
   }
 
@@ -50,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        actions: [const LanguageSwitcher(), const SizedBox(width: 8)],
+        actions: [const _WeatherAction(), const SizedBox(width: 8)],
       ),
       drawer: _buildDrawer(context),
       body: Column(
@@ -123,13 +128,43 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
 
                     if (viewModel.announcements.isEmpty) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Text(
-                            'Henüz duyuru yok',
-                            style: TextStyle(color: AppColors.textSecondary),
-                          ),
+                      final mock = [
+                        {
+                          'title': 'Su Kesintisi Duyurusu - Bakım Çalışması',
+                          'date': '28.10.2025',
+                          'imageUrl':
+                              'https://picsum.photos/seed/duyuru1/600/338',
+                        },
+                        {
+                          'title': 'Cumhuriyet Bayramı Etkinlik Programı',
+                          'date': '29.10.2025',
+                          'imageUrl':
+                              'https://picsum.photos/seed/duyuru2/600/338',
+                        },
+                        {
+                          'title': 'Yol Çalışması - Geçici Trafik Düzenlemesi',
+                          'date': '30.10.2025',
+                          'imageUrl':
+                              'https://picsum.photos/seed/duyuru3/600/338',
+                        },
+                      ];
+
+                      return SizedBox(
+                        height: 190,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: mock.length,
+                          itemBuilder: (context, index) {
+                            final a = mock[index];
+                            return SizedBox(
+                              width: 280,
+                              child: AnnouncementCard(
+                                title: a['title'] as String,
+                                date: a['date'] as String,
+                                imageUrl: a['imageUrl'] as String,
+                              ),
+                            );
+                          },
                         ),
                       );
                     }
@@ -162,11 +197,12 @@ class _HomeScreenState extends State<HomeScreen> {
           // Navigasyon Butonları
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                crossAxisCount: 4,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1.15,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _buildNavButton(
@@ -220,6 +256,36 @@ class _HomeScreenState extends State<HomeScreen> {
                       _launchEBelediye(context);
                     },
                   ),
+                  _buildNavButton(
+                    context,
+                    icon: Icons.airline_seat_flat,
+                    title: 'Vefat Edenler',
+                    gradient: AppColors.greenGradient,
+                    imageAsset: 'assets/vefat-edenler.png',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const VefatScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildNavButton(
+                    context,
+                    icon: Icons.local_hospital,
+                    title: 'Nöbetçi Eczaneler',
+                    gradient: AppColors.primaryGradient,
+                    imageAsset: 'assets/images/nobetci-eczane.png',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NobetciEczaneScreen(),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -236,26 +302,31 @@ class _HomeScreenState extends State<HomeScreen> {
     required String title,
     required LinearGradient gradient,
     required VoidCallback onTap,
+    String? imageAsset,
   }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.zero,
       child: Container(
         decoration: BoxDecoration(
-          gradient: gradient,
+          color: const Color(0xFFFAFAFA),
           borderRadius: BorderRadius.zero,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 48, color: Colors.white),
-            const SizedBox(height: 8),
+            if (imageAsset == null)
+              Icon(icon, size: 28, color: AppColors.textPrimary)
+            else
+              Image.asset(imageAsset, width: 28, height: 28),
+            const SizedBox(height: 4),
             Text(
               title,
+              textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppColors.textPrimary,
               ),
             ),
           ],
@@ -421,6 +492,79 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _WeatherAction extends StatelessWidget {
+  const _WeatherAction();
+
+  IconData _iconForCode(String? code) {
+    switch (code) {
+      case '0':
+        return Icons.wb_sunny; // Clear
+      case '1':
+      case '2':
+      case '3':
+        return Icons.wb_cloudy; // Partly/Overcast
+      case '45':
+      case '48':
+        return Icons.foggy; // Fog
+      case '51':
+      case '53':
+      case '55':
+      case '56':
+      case '57':
+      case '61':
+      case '63':
+      case '65':
+        return Icons.grain; // Rain
+      case '66':
+      case '67':
+      case '71':
+      case '73':
+      case '75':
+      case '77':
+        return Icons.ac_unit; // Snow
+      case '80':
+      case '81':
+      case '82':
+        return Icons.grain; // Rain showers
+      case '95':
+      case '96':
+      case '99':
+        return Icons.flash_on; // Thunderstorm
+      default:
+        return Icons.cloud;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<WeatherViewModel>(
+      builder: (context, vm, _) {
+        final icon = _iconForCode(vm.weatherCode);
+        final temp = vm.temperatureC != null
+            ? '${vm.temperatureC!.round()}°'
+            : '--';
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: Colors.white),
+              const SizedBox(width: 4),
+              Text(
+                temp,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

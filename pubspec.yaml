@@ -85,6 +85,7 @@ flutter:
   assets:
     - assets/languages/
     - assets/images/
+    - assets/vefat-edenler.png
 
 flutter_native_splash:
   color: "#F5F5F5"

@@ -5,12 +5,16 @@ class AnnouncementCard extends StatelessWidget {
   final String title;
   final String date;
   final VoidCallback? onTap;
+  final String? imageAsset;
+  final String? imageUrl;
 
   const AnnouncementCard({
     super.key,
     required this.title,
     required this.date,
     this.onTap,
+    this.imageAsset,
+    this.imageUrl,
   });
 
   @override
@@ -22,10 +26,22 @@ class AnnouncementCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (imageAsset != null || imageUrl != null) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: imageAsset != null
+                        ? Image.asset(imageAsset!, fit: BoxFit.cover)
+                        : Image.network(imageUrl!, fit: BoxFit.cover),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
               Text(
                 title,
                 style: const TextStyle(

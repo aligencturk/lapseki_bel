@@ -9,6 +9,7 @@ import 'viewmodels/discover_viewmodel.dart';
 import 'viewmodels/events_viewmodel.dart';
 import 'viewmodels/ferry_viewmodel.dart';
 import 'viewmodels/emunicipality_viewmodel.dart';
+import 'viewmodels/weather_viewmodel.dart';
 import 'ui/views/home/home_screen.dart';
 
 class App extends StatelessWidget {
@@ -24,6 +25,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => EventsViewModel()),
         ChangeNotifierProvider(create: (_) => FerryViewModel()),
         ChangeNotifierProvider(create: (_) => EMunicipalityViewModel()),
+        ChangeNotifierProvider(create: (_) => WeatherViewModel()),
       ],
       child: Consumer<LocaleViewModel>(
         builder: (context, localeViewModel, child) {
