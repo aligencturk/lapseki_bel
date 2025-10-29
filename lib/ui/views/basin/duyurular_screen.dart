@@ -21,7 +21,7 @@ class _DuyurularScreenState extends State<DuyurularScreen> {
   @override
   void initState() {
     super.initState();
-    _future = _service.fetchAnnouncements(limit: 50);
+    _future = _service.fetchAnnouncements(limit: 50, useMock: true);
   }
 
   Future<void> _openLink(String? url) async {
@@ -68,7 +68,10 @@ class _DuyurularScreenState extends State<DuyurularScreen> {
                   const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () => setState(() {
-                      _future = _service.fetchAnnouncements(limit: 50);
+                      _future = _service.fetchAnnouncements(
+                        limit: 50,
+                        useMock: true,
+                      );
                     }),
                     child: const Text('Tekrar Dene'),
                   ),
@@ -99,4 +102,3 @@ class _DuyurularScreenState extends State<DuyurularScreen> {
     );
   }
 }
-

@@ -9,7 +9,14 @@ class WebsiteScraperService {
   static const String baseUrl = 'https://www.lapseki.bel.tr';
 
   /// Duyuruları çeker
-  Future<List<Announcement>> fetchAnnouncements({int limit = 3}) async {
+  Future<List<Announcement>> fetchAnnouncements({
+    int limit = 3,
+    bool useMock = false,
+  }) async {
+    if (useMock) {
+      AppLogger.info('Duyurular mock modunda yükleniyor');
+      return _getMockAnnouncements();
+    }
     try {
       AppLogger.info('Lapseki belediyesi duyuruları çekiliyor...');
 

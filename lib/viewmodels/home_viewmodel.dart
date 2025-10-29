@@ -20,7 +20,10 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _announcements = await _scraperService.fetchAnnouncements(limit: 5);
+      _announcements = await _scraperService.fetchAnnouncements(
+        limit: 5,
+        useMock: true,
+      );
       AppLogger.info('${_announcements.length} duyuru yüklendi');
     } catch (e) {
       _error = e.toString();
