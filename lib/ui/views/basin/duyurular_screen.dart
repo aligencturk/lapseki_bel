@@ -99,3 +99,4 @@ class _DuyurularScreenState extends State<DuyurularScreen> {
     );
   }
 }
+
