@@ -46,6 +46,7 @@ dependencies:
   
   # URL Launcher
   url_launcher: ^6.2.0
+  font_awesome_flutter: ^10.7.0
   
   # Internationalization
   intl: ^0.20.2
@@ -85,7 +86,6 @@ flutter:
   assets:
     - assets/languages/
     - assets/images/
-    - assets/vefat-edenler.png
 
 flutter_native_splash:
   color: "#F5F5F5"

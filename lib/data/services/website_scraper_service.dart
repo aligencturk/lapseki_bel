@@ -6,42 +6,134 @@ import '../models/place.dart';
 import '../../core/utils/logger_util.dart';
 
 class WebsiteScraperService {
-  static const String baseUrl = 'https://lapseki.bel.tr';
+  static const String baseUrl = 'https://www.lapseki.bel.tr';
 
-  /// Son duyuruları çeker
-  Future<List<Announcement>> fetchAnnouncements() async {
+  /// Duyuruları çeker
+  Future<List<Announcement>> fetchAnnouncements({int limit = 3}) async {
     try {
       AppLogger.info('Lapseki belediyesi duyuruları çekiliyor...');
 
       final response = await http
-          .get(Uri.parse('$baseUrl/duyurular'))
+          .get(
+            Uri.parse('$baseUrl/duyurular'),
+            headers: const {
+              'User-Agent':
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125 Safari/537.36',
+              'Accept':
+                  'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            },
+          )
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final document = html_parser.parse(response.body);
         final announcements = <Announcement>[];
 
-        // Son 3 duyuruyu al
-        final announcementItems = document
-            .querySelectorAll('.announcement-item')
-            .take(3);
+        // 1) Link tabanlı yakalama: sadece duyuru detay linkleri (/duyuru/...)
+        final linkCandidates = document.querySelectorAll('a[href*="/duyuru/"]');
 
-        for (var item in announcementItems) {
-          final titleElement = item.querySelector(
-            '.title a, h3 a, .announcement-title',
+        for (final a in linkCandidates) {
+          if (announcements.length >= limit) break;
+          final href = a.attributes['href'];
+          if (href == null || href.isEmpty) continue;
+          final titleText = a.text.trim();
+          if (titleText.isEmpty) continue;
+          // Menü ve kısa başlıkları filtrele
+          const blockedTitles = [
+            'Anasayfa',
+            'Duyurular',
+            'Etkinlikler',
+            'E - Ödeme',
+            'Galeri',
+            'Haberler',
+            'İhaleler',
+            'Fotoğraf Galerisi',
+            'Video Galeri',
+            'İletişim Formu',
+            'KOLAY MENU',
+            'KOLAY MENÜ',
+          ];
+          if (blockedTitles.contains(titleText)) continue;
+          if (titleText.length < 8) continue;
+
+          // Tarih metni bulunamazsa boş bırak
+          final String dateText = '';
+
+          announcements.add(
+            Announcement(
+              title: titleText,
+              date: dateText.isEmpty ? '' : dateText,
+              description: null,
+              url: href.startsWith('http') ? href : '$baseUrl$href',
+            ),
           );
-          final dateElement = item.querySelector('.date, .tarih, time');
+        }
 
-          if (titleElement != null) {
+        // 3) Son çare: Regex ile /duyuru/ linklerini yakala
+        if (announcements.isEmpty) {
+          final body = response.body;
+          final regex = RegExp(
+            r'href\s*=\s*"(\/duyuru\/[^"#]+)"[^>]*>([^<]{8,})<',
+            caseSensitive: false,
+          );
+          final seen = <String>{};
+          for (final m in regex.allMatches(body)) {
+            if (announcements.length >= limit) break;
+            final href = m.group(1);
+            final title = (m.group(2) ?? '').trim();
+            if (href == null || title.isEmpty) continue;
+            const blockedTitles = [
+              'Anasayfa',
+              'Duyurular',
+              'Etkinlikler',
+              'E - Ödeme',
+              'Galeri',
+              'Haberler',
+              'İhaleler',
+              'Fotoğraf Galerisi',
+              'Video Galeri',
+              'İletişim Formu',
+              'KOLAY MENU',
+              'KOLAY MENÜ',
+            ];
+            if (blockedTitles.contains(title)) continue;
+            if (seen.contains(title)) continue;
+            seen.add(title);
+            announcements.add(
+              Announcement(
+                title: title,
+                date: '',
+                description: null,
+                url: href.startsWith('http') ? href : '$baseUrl$href',
+              ),
+            );
+          }
+        }
+
+        // 2) Eğer hâlâ sonuç yoksa, daha geniş kart/liste seçicileri dene
+        if (announcements.isEmpty) {
+          final cards = document.querySelectorAll(
+            '.announcement-item, .duyuru, .news-item, .haber, article, li',
+          );
+          for (final item in cards) {
+            if (announcements.length >= limit) break;
+            final titleElement = item.querySelector('a, h3 a, .title a');
+            if (titleElement == null) continue;
+            final href = titleElement.attributes['href'];
             final title = titleElement.text.trim();
-            final date = dateElement?.text.trim() ?? 'Tarih belirtilmemiş';
-
+            if (title.isEmpty) continue;
+            final dateElement = item.querySelector(
+              '.date, .tarih, time, .gun, .ay, .yil',
+            );
+            final date = dateElement?.text.trim() ?? '';
             announcements.add(
               Announcement(
                 title: title,
                 date: date,
                 description: null,
-                url: titleElement.attributes['href'],
+                url: href == null
+                    ? null
+                    : (href.startsWith('http') ? href : '$baseUrl$href'),
               ),
             );
           }

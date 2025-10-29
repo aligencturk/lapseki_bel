@@ -5,7 +5,7 @@ import '../core/utils/logger_util.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final WebsiteScraperService _scraperService = WebsiteScraperService();
-  
+
   List<Announcement> _announcements = [];
   bool _isLoading = false;
   String? _error;
@@ -20,7 +20,7 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _announcements = await _scraperService.fetchAnnouncements();
+      _announcements = await _scraperService.fetchAnnouncements(limit: 5);
       AppLogger.info('${_announcements.length} duyuru yüklendi');
     } catch (e) {
       _error = e.toString();
@@ -36,4 +36,3 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 }
-

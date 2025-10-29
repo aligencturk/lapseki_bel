@@ -6,7 +6,6 @@ import '../../../core/constants/app_images.dart';
 import '../../../viewmodels/home_viewmodel.dart';
 import '../../../viewmodels/weather_viewmodel.dart';
 import '../../widgets/announcement_card.dart';
-import '../../widgets/language_switcher.dart';
 import '../../widgets/header_slider.dart';
 import '../discover/discover_screen.dart';
 import '../events/events_screen.dart';
@@ -17,10 +16,10 @@ import '../hizmetler/hizmetler_screen.dart';
 import '../projeler/projeler_screen.dart';
 import '../kentrehberi/kent_rehberi_screen.dart';
 import '../basin/basin_screen.dart';
+import '../basin/duyurular_screen.dart';
 import '../iletisim/iletisim_screen.dart';
 import '../vefat/vefat_screen.dart';
 import '../eczane/nobetci_eczane_screen.dart';
-import '../hava/hava_durumu_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -173,22 +172,49 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     }
 
-                    return SizedBox(
-                      height: 120,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: viewModel.announcements.length,
-                        itemBuilder: (context, index) {
-                          final announcement = viewModel.announcements[index];
-                          return SizedBox(
-                            width: 280,
-                            child: AnnouncementCard(
-                              title: announcement.title,
-                              date: announcement.date,
-                            ),
-                          );
-                        },
-                      ),
+                    final list = viewModel.announcements;
+                    final show = list.length > 5 ? 5 : list.length;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 120,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: show,
+                            itemBuilder: (context, index) {
+                              final announcement = list[index];
+                              return SizedBox(
+                                width: 280,
+                                child: AnnouncementCard(
+                                  title: announcement.title,
+                                  date: announcement.date,
+                                  imageAsset: AppImages.logo,
+                                  compact: true,
+                                  onTap: () {
+                                    // İsteğe bağlı: tüm duyurular sayfasına yönlendirme
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const DuyurularScreen(),
+                                ),
+                              );
+                            },
+                            child: const Text('Tüm Duyurular'),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -265,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icons.airline_seat_flat,
                     title: 'Vefat Edenler',
                     gradient: AppColors.greenGradient,
-                    imageAsset: 'assets/vefat-edenler.png',
+                    imageAsset: 'assets/images/vefat-edenler.png',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -322,7 +348,13 @@ class _HomeScreenState extends State<HomeScreen> {
             if (imageAsset == null)
               Icon(icon, size: 28, color: AppColors.textPrimary)
             else
-              Image.asset(imageAsset, width: 28, height: 28),
+              Image.asset(
+                imageAsset,
+                width: 28,
+                height: 28,
+                errorBuilder: (context, error, stackTrace) =>
+                    Icon(icon, size: 28, color: AppColors.textPrimary),
+              ),
             const SizedBox(height: 4),
             Text(
               title,

@@ -41,6 +41,25 @@ class IletisimScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _openWhatsApp(BuildContext context, String phoneE164) async {
+    try {
+      // phoneE164: 905425121044 formatında olmalı
+      final uri = Uri.parse('https://wa.me/$phoneE164');
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        // Yedek: uygulama içi açmayı dene
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('WhatsApp açılamadı')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,10 +129,10 @@ class IletisimScreen extends StatelessWidget {
           _buildContactCard(
             context,
             'WhatsApp',
-            '0 286 512 10 44',
+            '+90 542 512 10 44',
             Icons.chat,
             Colors.green,
-            () {},
+            () => _openWhatsApp(context, '905425121044'),
           ),
         ],
       ),

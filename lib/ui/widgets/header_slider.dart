@@ -67,9 +67,7 @@ class _HeaderSliderState extends State<HeaderSlider> {
               if (widget.images[index] == AppImages.logo) {
                 return Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.white),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -81,7 +79,9 @@ class _HeaderSliderState extends State<HeaderSlider> {
                             color: Colors.white,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                              color: AppColors.primaryBlue.withValues(
+                                alpha: 0.3,
+                              ),
                               width: 2,
                             ),
                           ),
@@ -121,43 +121,11 @@ class _HeaderSliderState extends State<HeaderSlider> {
                       width: double.infinity,
                       height: double.infinity,
                       errorBuilder: (context, error, stackTrace) {
-                        // Hata durumunda gradient göster
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: index == 1
-                                  ? [
-                                      AppColors.accentGreen.withValues(
-                                        alpha: 0.8,
-                                      ),
-                                      AppColors.primaryBlue,
-                                    ]
-                                  : [
-                                      AppColors.accentRed.withValues(
-                                        alpha: 0.8,
-                                      ),
-                                      AppColors.primaryBlue,
-                                    ],
-                            ),
-                          ),
-                        );
+                        // Hata durumunda sade arka plan göster
+                        return Container(color: Colors.black12);
                       },
                     ),
-                    // Overlay gradient
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            AppColors.primaryBlue.withValues(alpha: 0.7),
-                          ],
-                        ),
-                      ),
-                    ),
+                    // Overlay kaldırıldı (gradient yok)
                   ],
                 ),
               );
